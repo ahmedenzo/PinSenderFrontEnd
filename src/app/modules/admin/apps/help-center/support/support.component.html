@@ -1,0 +1,71 @@
+<div class="flex flex-col flex-auto min-w-0">
+    <!-- Main -->
+    <div class="flex flex-col flex-auto items-center p-6 sm:p-10">
+        <div class="flex flex-col w-full max-w-4xl">
+            <div class="mt-2 text-4xl sm:text-7xl font-extrabold tracking-tight leading-tight">
+                Contact support
+            </div>
+            <!-- Form -->
+            <div class="mt-8 sm:mt-12 p-6 pb-7 sm:p-10 sm:pb-7 shadow rounded-2xl bg-card">
+                <!-- Alert -->
+                <fuse-alert
+                    class="mb-8"
+                    *ngIf="alert"
+                    [type]="alert.type"
+                    [showIcon]="false">
+                    {{alert.message}}
+                </fuse-alert>
+                <div class="mb-6">
+                    <div class="text-2xl font-bold tracking-tight">Submit your request</div>
+                    <div class="text-secondary">Your request will be processed and our support staff will get back to you in 24 hours.</div>
+                </div>
+                <!-- Support Contacts -->
+                <div class="mb-6">
+                    <div class="text-lg font-semibold">Technical Support</div>
+                    <div class="mt-4 flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="material-icons">person</span>
+                            <div>
+                                <div class="font-medium">Ahmed Ferchichi</div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="material-icons text-secondary">phone</span>
+                                    <span class="text-secondary">+21627905829</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="material-icons text-secondary">email</span>
+                                    <span class="text-secondary">ahmed.ferchichi&#64;monetiquetunisie.com</span>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="material-icons">person</span>
+                            <div>
+                                <div class="font-medium">Hamza Melki</div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="material-icons text-secondary">phone</span>
+                                    <span class="text-secondary">+21627723382</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="material-icons text-secondary">email</span>
+                                    <span class="text-secondary">hamza.melki&#64;monetiquetunisie.com</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Actions -->
+                <div class="flex items-center justify-end">
+                    <button
+                        mat-flat-button
+                        [color]="'primary'"
+                        (click)="sendEmail()">
+                        Contact Support
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
