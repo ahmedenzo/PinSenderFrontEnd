@@ -9,6 +9,9 @@ if (environment.production && !environment.enableLogging) {
     console.warn = () => {}; // Optional: Disable console.warn
     console.info = () => {}; // Optional: Disable console.info
     console.debug = () => {}; // Optional: Disable console.debug
+    window.console.log = () => {};
+    window.console.warn = () => {};
+    window.console.error = () => {};
     console.error = console.error; // Keep console.error (Optional, can be disabled too)
   }
 
