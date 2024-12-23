@@ -119,12 +119,13 @@
       shell: |
         docker run -d --name {{ app_name }} \
         --network {{ app_network }} \
-        --publish 8433:8433 \
+        --publish 8443:8443 \
         --log-driver=loki \
-        --restart unless-stopped \ 
+        --restart unless-stopped \
         --log-opt loki-url={{ loki_url }} \
         --log-opt loki-external-labels="{{ loki_labels }}" \
         {{ app_name }}:latest
+    
        
 
     # Step 6: Deploy Node Exporter
