@@ -1,18 +1,18 @@
 pipeline {
     agent any
-
+ 
     environment {
         DOCKER_IMAGE = "angular-nginx-app" // Docker image name
-        INVENTORY = "pin-code-front-master/inventory.ini" // Inventory file path
-        PLAYBOOK = "pin-code-front-master/deploy.yml" // Ansible playbook path
+        INVENTORY = "inventory.ini" // Inventory file path
+        PLAYBOOK = "deploy.yml" // Ansible playbook path
         PROMETHEUS_PROCESS = "prometheus" // Prometheus process name
-        PROMETHEUS_DIR = "/var/lib/jenkins/prometheus" // Prometheus directory
+        PROMETHEUS_DIR = "/data/jenkins/prometheus" // Prometheus directory
         GRAFANA_CONTAINER = "grafana"
         LOKI_CONTAINER = "loki"
     }
-
+ 
     stages {
-
+ 
         stage('Pre-clean Specific Docker Image') {
             steps {
                 script {
@@ -24,29 +24,29 @@ pipeline {
                 }
             }
         }
-
+ 
         stage('Clone Repository') {
             steps {
-                git branch: 'master', url: 'https://github.com/ahmedenzo/pinesender-fullProject.git'
+                git branch: 'main', url: 'https://github.com/ahmedenzo/PinSenderFrontEnd.git'
             }
         }
-
+ 
         stage('Verify Required Files') {
             steps {
                 script {
                     echo "Verifying the required files: ${INVENTORY} and ${PLAYBOOK}..."
-
+ 
                     if (!fileExists("${INVENTORY}")) {
                         error "The file ${INVENTORY} is missing. Stopping pipeline."
                     }
-
+ 
                     if (!fileExists("${PLAYBOOK}")) {
                         error "The file ${PLAYBOOK} is missing. Stopping pipeline."
                     }
                 }
             }
         }
-
+ 
         stage('Test Ansible Connection') {
             steps {
                 script {
@@ -63,12 +63,12 @@ pipeline {
                 }
             }
         }
-
+ 
         stage('Check and Start Monitoring Services') {
             steps {
                 script {
                     echo "Ensuring Prometheus, Grafana, and Loki are running..."
-
+ 
                     // Check and start Prometheus
                     def prometheusStatus = sh(script: "pgrep -f ${PROMETHEUS_PROCESS}", returnStatus: true)
                     if (prometheusStatus != 0) {
@@ -80,7 +80,7 @@ pipeline {
                     } else {
                         echo "Prometheus is already running."
                     }
-
+ 
                     // Check and manage Grafana container
                     def grafanaRunning = sh(script: "docker ps --filter 'name=${GRAFANA_CONTAINER}' --filter 'status=running' -q", returnStdout: true).trim()
                     if (grafanaRunning) {
@@ -96,7 +96,7 @@ pipeline {
                             docker run -d --name=${GRAFANA_CONTAINER} -p 3000:3000 grafana/grafana
                         """
                     }
-
+ 
                     // Check and manage Loki container
                     def lokiRunning = sh(script: "docker ps --filter 'name=${LOKI_CONTAINER}' --filter 'status=running' -q", returnStdout: true).trim()
                     if (lokiRunning) {
@@ -115,40 +115,40 @@ pipeline {
                 }
             }
         }
-
+ 
         stage('Verify Nginx Configuration') {
             steps {
                 script {
-                    if (!fileExists('pin-code-front-master/nginx.conf')) {
+                    if (!fileExists('nginx.conf')) {
                         error "The nginx.conf file is missing in the cloned repository."
                     }
-                    sh 'ls -l pin-code-front-master/nginx.conf'
+                    sh 'ls -l nginx.conf'
                 }
             }
         }
-
+ 
         stage('Build Docker Image') {
             steps {
                 script {
                     sh '''
                         echo "Building Docker image with no cache..."
-                        docker build --no-cache -t ${DOCKER_IMAGE}:latest -f pin-code-front-master/Dockerfile pin-code-front-master/
+                        docker build --no-cache -t ${DOCKER_IMAGE}:latest .
                     '''
                 }
             }
         }
-
+ 
         stage('Export Docker Image') {
             steps {
                 script {
                     sh '''
                         echo "Exporting Docker image..."
-                        docker save -o pin-code-front-master/angular-nginx-app.tar ${DOCKER_IMAGE}:latest
+                        docker save -o angular-nginx-app.tar ${DOCKER_IMAGE}:latest
                     '''
                 }
             }
         }
-
+ 
         stage('Deploy with Ansible') {
             steps {
                 script {
@@ -159,7 +159,7 @@ pipeline {
                 }
             }
         }
-
+ 
         stage('Post-clean Specific Docker Image') {
             steps {
                 script {
@@ -167,15 +167,13 @@ pipeline {
                     sh '''
                         # Remove the built image
                         docker images ${DOCKER_IMAGE}:latest -q | xargs --no-run-if-empty docker rmi -f
-
-                        # Clean up unused Docker resources
-                        docker system prune -f --volumes
+ 
                     '''
                 }
             }
         }
     }
-
+ 
     post {
         success {
             echo 'Pipeline completed successfully! 🎉'
