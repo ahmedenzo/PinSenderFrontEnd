@@ -195,7 +195,7 @@ signOut(): Observable<any> {
             this.isRefreshing = true;
             this.refreshTokenSubject.next(null);  // Reset the subject to indicate refreshing
 
-            return this._httpClient.post(`${this.apiUrl}/auth/refreshToken`, {}, { withCredentials: true }).pipe(
+            return this._httpClient.post(`${this.apiUrl}/api/auth/refreshToken`, {}, { withCredentials: true }).pipe(
                 switchMap((response: any) => {
                     const newAccessToken = response.accessToken;
 
