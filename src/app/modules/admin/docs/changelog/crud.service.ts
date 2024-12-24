@@ -99,7 +99,7 @@ export class CrudService {
  * @returns Observable<any> - Response from the backend.
  */
 resendOtp(gsmNumber: string): Observable<any> {
-  const url = `${this.apiUrl}/api/otpresend`;
+  const url = `${this.apiUrl}/api/otp/resend`;
   const headers = new HttpHeaders({
       'Content-Type': 'text/plain'
   });
