@@ -250,7 +250,7 @@ export class ChangelogComponent
                               console.log('Received verification status:', status);
   
                               // Show the status in an alert or some UI element
-                              if (status.message === 'Cardholder verified successfully . OTP sent.') {
+                              if (status.message === 'OTP sent successfully to Cardholder phone') {
                                   this.successMessage = `Verification : ${status.message}`;
                                   this.startCountdown();
                                
@@ -268,7 +268,7 @@ export class ChangelogComponent
                                   this.successMessage = null;
                                   this.errorMessage = null;
                                   this.cdr.markForCheck(); // Trigger change detection
-                              }, 3000);
+                              }, 5000);
   
                               this.cdr.markForCheck(); // Trigger change detection
                           }
@@ -314,7 +314,7 @@ export class ChangelogComponent
       const otp = Object.values(this.otpFormGroup.value).join('');
       this.crudService.validateOtp(this.gsm, otp, this.card).subscribe(
         (response: MessageResponse) => {
-          if (response.statusCode === 200) {
+          if (response.message === 'Phone number validated successfully.') {
             this.successMessage1 = response.message;    
             this.otpVerified = true;
             this.isResendEnabled = false; 
@@ -347,14 +347,14 @@ export class ChangelogComponent
             () => {
                 console.log('OTP resent successfully');
                 this.successMessage2 = 'OTP resent successfully. Please check your phone.';
-                this.startCountdown(); // Restart countdown for the new OTP
+                this.startCountdown(); 
                 this.cdr.markForCheck();
   
                
                 setTimeout(() => {
                     this.successMessage2 = null;
                     this.cdr.markForCheck();
-                }, 2000); // 5000ms = 5 seconds
+                }, 2000); 
             },
             (error) => {
                 console.error('Failed to resend OTP:', error);
