@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://172.17.2.61/api', // Use the WAF's IP address with HTTPS
-  brokerURL: 'wss://172.17.2.61/ws', // Use the WAF's IP address with WSS for WebSocket
+  apiUrl: 'https://${window.location.hostname}/api', // Use the current hostname dynamically
+  brokerURL: 'wss://${window.location.hostname}/ws', // Use the current hostname dynamically for WebSocket
   enableLogging: false,
 };
