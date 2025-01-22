@@ -80,13 +80,13 @@ export class AuthSignInComponent implements OnInit {
                 this.signInNgForm.resetForm();
     
                 // Check for known errors
-                if (error.error?.statusCode === 403 && error.error?.message === 'Error: User account is inactive') {
+                if (error.error?.status === 403 && error.error?.message === 'Error: User account is inactive') {
                     // Specific error message for session issue
                     this.alert = {
                         type: 'error',
                         message: 'User account is inactive.',
                     };
-                } else if (error.error?.statusCode === 400 && error.error?.message === 'Error: Invalid username or password') {
+                } else if (error.error?.status === 400 && error.error?.message === 'Error: Invalid username or password') {
                     // Specific error message for wrong credentials
                     this.alert = {
                         type: 'error',
