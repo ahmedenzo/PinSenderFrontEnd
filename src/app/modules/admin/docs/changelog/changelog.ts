@@ -216,7 +216,7 @@ export class ChangelogComponent
       if (this.firstFormGroup.valid) {
           const { cardNumber, nationalId, gsm, finalDate } = this.firstFormGroup.value;
           const formattedExpiration = finalDate.replace('/', '');
-          this.gsm = '00216' + gsm;
+          this.gsm = '216' + gsm;
           this.card = cardNumber; // Assign cardNumber to this.card
        
           // Send the cardholder verification request
