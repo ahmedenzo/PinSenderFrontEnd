@@ -253,6 +253,7 @@ export class ChangelogComponent
 
                         if (status.message === 'OTP sent successfully to Cardholder phone') {
                             this.successMessage = `Verification: ${status.message}`;
+                            this.startCountdown();
                             this.otpSent = true;
                             this.isResendEnabled = true;
                         } else {
@@ -294,6 +295,7 @@ export class ChangelogComponent
     }
 
     ngOnDestroy(): void {
+    this.clearCountdown();
         if (this.verificationSubscription) {
             this.verificationSubscription.unsubscribe();
         }
