@@ -212,102 +212,79 @@ export class ChangelogComponent
       }
     }
 
+    
     verifyCardholder(): void {
-      if (this.firstFormGroup.valid) {
-          const { cardNumber, nationalId, gsm, finalDate } = this.firstFormGroup.value;
-          const formattedExpiration = finalDate.replace('/', '');
-          this.gsm = '216' + gsm;
-          this.card = cardNumber; // Assign cardNumber to this.card
-       
-          // Send the cardholder verification request
-          this.crudService.verifyCardholder(cardNumber, nationalId, this.gsm, formattedExpiration).subscribe(
-              (response) => {
-                  console.log('Verification initiated:', response);
-  
-                  // Clear any existing alerts
-                  this.successMessage = null;
-                  this.errorMessage = null;
-  
-                  this.successMessage = 'Verification initiated successfully. Waiting for status...';
-  
-                  // Automatically hide the alert after 3 seconds
-                  setTimeout(() => {
-                      this.successMessage = null;
-                      this.cdr.markForCheck(); // Trigger change detection
-                  }, 3000);
-  
-                  // DO NOT set otpSent to true yet, only after WebSocket confirmation
-                  // Subscribe to WebSocket for status updates
-                  this.verificationSubscription = this.crudService.getVerificationStatusUpdates()
-                      .subscribe(status => {
-                          if (status) {
-                              // Clear any previous messages when new status is received
-                              this.successMessage = null;
-                              this.errorMessage = null;
-  
-                              // Show the real-time verification status from WebSocket
-                              this.verificationStatus = status.message;
-                              console.log('Received verification status:', status);
-  
-                              // Show the status in an alert or some UI element
-                              if (status.message === 'OTP sent successfully to Cardholder phone') {
-                                  this.successMessage = `Verification : ${status.message}`;
-                                  this.startCountdown();
-                               
-                                  this.isResendEnabled = true;
-                                  this.otpSent = true;  // Move to OTP form only if successful
-                              } else {
-                                  // Show failure message
-                                  this.errorMessage = `Verification : ${status.message}`;
-                                  this.otpSent = false;
-                                  this.otpVerified=false
-                              }
-  
-                              // Automatically hide the alert after 3 seconds
-                              setTimeout(() => {
-                                  this.successMessage = null;
-                                  this.errorMessage = null;
-                                  this.cdr.markForCheck(); // Trigger change detection
-                              }, 5000);
-  
-                              this.cdr.markForCheck(); // Trigger change detection
-                          }
-                      });
-  
-                  this.cdr.markForCheck();
-              },
-              (error) => {
-                  console.error('Verification :', error.error.message);
-  
-                  // Clear any existing alerts
-                  this.successMessage = null;
-                  this.errorMessage = 'Failed to initiate verification: Check Information';
-  
-                  // Automatically hide the alert after 3 seconds
-                  setTimeout(() => {
-                      this.errorMessage = null;
-                      this.cdr.markForCheck(); // Trigger change detection
-                  }, 3000);
-  
-                  this.otpSent = false;
-                  this.cdr.markForCheck();
-              }
-          );
-      }
-  }
-  
-  
-  
+        if (this.firstFormGroup.valid) {
+            const { cardNumber, nationalId, gsm, finalDate } = this.firstFormGroup.value;
+            const formattedExpiration = finalDate.replace('/', '');
+            this.gsm = '216' + gsm;
+            this.card = cardNumber;
 
-    // Cleanup WebSocket subscription
+            this.resetAlerts();
+
+            this.crudService.verifyCardholder(cardNumber, nationalId, this.gsm, formattedExpiration).subscribe(
+                (response) => {
+                    console.log('Verification initiated:', response);
+                    this.successMessage = 'Verification initiated successfully. Waiting for status...';
+
+                    // Subscribe to WebSocket updates
+                    this.subscribeToVerificationUpdates();
+                },
+                (error) => {
+                    console.error('Verification failed:', error);
+                    this.errorMessage = 'Failed to initiate verification: Check Information';
+                }
+            );
+        }
+    }
+
+    subscribeToVerificationUpdates(): void {
+        if (!this.verificationSubscription) {
+            this.verificationSubscription = this.crudService.getVerificationStatusUpdates().subscribe(
+                (status) => {
+                    if (status) {
+                        this.resetAlerts();
+                        this.verificationStatus = status.message;
+                        console.log('Received verification status:', status);
+
+                        if (status.message === 'OTP sent successfully to Cardholder phone') {
+                            this.successMessage = `Verification: ${status.message}`;
+                            this.otpSent = true;
+                            this.isResendEnabled = true;
+                        } else {
+                            this.errorMessage = `Verification failed: ${status.message}`;
+                            this.otpSent = false;
+                        }
+                    }
+                },
+                (error) => {
+                    console.error('WebSocket Error:', error);
+                    this.errorMessage = 'Error receiving verification status.';
+                }
+            );
+        }
+    }
+
+    resetAlerts(): void {
+        this.successMessage = null;
+        this.errorMessage = null;
+        this.verificationStatus = null;
+        this.cdr.markForCheck();
+    }
+
+    resetState(): void {
+        this.otpSent = false;
+        this.verificationStatus = null;
+        this.resetAlerts();
+        this.isResendEnabled = false;
+    }
+
     ngOnDestroy(): void {
-      this.clearCountdown();
-      this.otpSent = false;
-      this.otpVerified= false;
-      if (this.verificationSubscription) {
-          this.verificationSubscription.unsubscribe();
-      }
-  }
+        if (this.verificationSubscription) {
+            this.verificationSubscription.unsubscribe();
+        }
+        this.resetState();
+    }
     
   verifyOtp(): void {
     if (this.otpFormGroup.valid) {
