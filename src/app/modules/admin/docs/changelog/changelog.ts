@@ -213,7 +213,7 @@ export class ChangelogComponent
     }
 
     
-    verifyCardholder(): void {
+     verifyCardholder(): void {
         if (this.firstFormGroup.valid) {
             const { cardNumber, nationalId, gsm, finalDate } = this.firstFormGroup.value;
             const formattedExpiration = finalDate.replace('/', '');
@@ -227,12 +227,16 @@ export class ChangelogComponent
                     console.log('Verification initiated:', response);
                     this.successMessage = 'Verification initiated successfully. Waiting for status...';
 
+                    this.hideMessageAfterTimeout(); // Hide after 2 seconds
+
                     // Subscribe to WebSocket updates
                     this.subscribeToVerificationUpdates();
                 },
                 (error) => {
                     console.error('Verification failed:', error);
                     this.errorMessage = 'Failed to initiate verification: Check Information';
+
+                    this.hideMessageAfterTimeout(); // Hide after 2 seconds
                 }
             );
         }
@@ -255,14 +259,24 @@ export class ChangelogComponent
                             this.errorMessage = `Verification failed: ${status.message}`;
                             this.otpSent = false;
                         }
+
+                        this.hideMessageAfterTimeout(); // Hide after 2 seconds
                     }
                 },
                 (error) => {
                     console.error('WebSocket Error:', error);
                     this.errorMessage = 'Error receiving verification status.';
+                    this.hideMessageAfterTimeout(); // Hide after 2 seconds
                 }
             );
         }
+    }
+
+    hideMessageAfterTimeout(): void {
+        setTimeout(() => {
+            this.resetAlerts();
+            this.cdr.markForCheck(); // Trigger change detection
+        }, 3000); // 2 seconds timeout
     }
 
     resetAlerts(): void {
