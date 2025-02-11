@@ -479,9 +479,14 @@ private resetToCardholderForm(resetOtpState: boolean = false): void {
 
 
 private clearCardholderForm(): void {
-  // Reset cardholder form fields
+  // Store the countryCode before resetting
+  const countryCode = this.firstFormGroup.get('countryCode')?.value;
+
+  // Reset the form while preserving the countryCode value
   this.firstFormGroup.reset();
+  this.firstFormGroup.patchValue({ countryCode });
 }
+
 
 
 
