@@ -216,7 +216,41 @@ button:enabled:hover {
 .text-gray-600, .bg-skyblue, .w-full {
   /* Additional styling */
 }
+.country-code-select {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px; /* Reduced padding for smaller size */
+  font-size: 12px; /* Adjust font size as needed */
+  color: #0d62ec; /* text-gray-500 */
+  background-color: #e5e7eb; /* bg-gray-200 */
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  border-right: none; /* Remove right border */
+  border-radius: 4px 0 0 4px; /* Rounded left edge */
+  margin-right: 8px; /* Adjust margin as needed */
+  height: 40px; /* Match the height of the input field */
+  width: 110px; /* Fixed width for minimized size */
+  outline: none; /* Remove default outline */
+  cursor: pointer; /* Show pointer cursor on hover */
+  overflow: hidden; /* Hide overflow */
+  white-space: nowrap; /* Prevent text wrapping */
+  text-overflow: ellipsis; /* Show ellipsis for overflow text */
+}
 
+/* Style for the GSM input field */
+.gsm-input {
+  flex: 1; /* Take up remaining space */
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  border-radius: 0 4px 4px 0; /* Rounded right edge */
+  padding: 8px 12px; /* Adjust padding as needed */
+  font-size: 14px; /* Adjust font size as needed */
+  outline: none; /* Remove default outline */
+}
+
+/* Ensure the input field matches the height of the prefix */
+.mat-form-field-infix {
+  display: flex;
+  align-items: center;
+}
 .mt-4, .gap-4, .flex-80, .flex-20 {
   /* Custom spacing adjustments */
 }
