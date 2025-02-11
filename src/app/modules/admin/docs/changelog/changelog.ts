@@ -85,6 +85,7 @@ export class ChangelogComponent
     alertType: 'success' | 'warning' | 'error' = 'success';
     alertMessage = '';
     currentYear: number = new Date().getFullYear() % 100; 
+    selectedCountryCode: string = '216'; 
   
     months = [
       { value: '01', viewValue: '01' },
@@ -100,6 +101,63 @@ export class ChangelogComponent
       { value: '11', viewValue: '11' },
       { value: '12', viewValue: '12' },
     ];
+    countryCodes = [
+      { code: '213', name: 'Algeria' },
+      { code: '244', name: 'Angola' },
+      { code: '973', name: 'Bahrain' },
+      { code: '32', name: 'Belgium' },
+      { code: '237', name: 'Cameroon' },
+      { code: '1', name: 'Canada' },
+      { code: '385', name: 'Croatia' },
+      { code: '420', name: 'Czech Republic' },
+      { code: '243', name: 'Democratic Republic of the Congo'},
+      { code: '45', name: 'Denmark' },
+      { code: '20', name: 'Egypt' },
+      { code: '358', name: 'Finland' },
+      { code: '33', name: 'France' },
+      { code: '49', name: 'Germany' },
+      { code: '233', name: 'Ghana' },
+      { code: '353', name: 'Ireland' },
+      { code: '39', name: 'Italy' },
+      { code: '225', name: 'Ivory Coast' },
+      { code: '962', name: 'Jordan' },
+      { code: '965', name: 'Kuwait' },
+      { code: '961', name: 'Lebanon' },
+      { code: '218', name: 'Libya' },
+      { code: '352', name: 'Luxembourg' },
+      { code: '223', name: 'Mali' },
+      { code: '356', name: 'Malta' },
+      { code: '212', name: 'Morocco' },
+      { code: '31', name: 'Netherlands' },
+      { code: '47', name: 'Norway' },
+      { code: '968', name: 'Oman' },
+      { code: '970', name: 'Palestine' },
+      { code: '48', name: 'Poland' },
+      { code: '351', name: 'Portugal' },
+      { code: '974', name: 'Qatar' },
+      { code: '242', name: 'Republic of the Congo' },
+      { code: '40', name: 'Romania' },
+      { code: '7', name: 'Russia' },
+      { code: '250', name: 'Rwanda' },
+      { code: '966', name: 'Saudi Arabia' },
+      { code: '221', name: 'Senegal' },
+      { code: '381', name: 'Serbia' },
+      { code: '27', name: 'South Africa' },
+      { code: '82', name: 'South Korea' },
+      { code: '34', name: 'Spain' },
+      { code: '46', name: 'Sweden' },
+      { code: '41', name: 'Switzerland' },
+      { code: '886', name: 'Taiwan' },
+      { code: '992', name: 'Tajikistan' },
+      { code: '255', name: 'Tanzania' },
+      { code: '228', name: 'Togo' },
+      { code: '216', name: 'Tunisia' },
+      { code: '90', name: 'Turkey' },
+      { code: '971', name: 'United Arab Emirates' },
+      { code: '44', name: 'United Kingdom' },
+      { code: '1', name: 'United States' },
+
+    ];
    
     years = Array.from({ length: 10 }, (_, i) => {
       const year = (this.currentYear + i).toString().padStart(2, '0');
@@ -113,8 +171,9 @@ export class ChangelogComponent
       this.firstFormGroup = this._formBuilder.group({
         cardNumber: ['', [Validators.required, Validators.pattern(/^\d{16}$/)]],
         nationalId: ['', [Validators.required, this.nationalIdValidator()]],  // Custom validator
-        gsm: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
+        gsm: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
         finalDate: ['', [Validators.required, Validators.pattern(/^\d{2}\/\d{2}$/)]],
+        countryCode: [this.selectedCountryCode, Validators.required] 
       });
   
       this.otpFormGroup = this._formBuilder.group({
@@ -213,33 +272,33 @@ export class ChangelogComponent
     }
 
     
-     verifyCardholder(): void {
-        if (this.firstFormGroup.valid) {
-            const { cardNumber, nationalId, gsm, finalDate } = this.firstFormGroup.value;
-            const formattedExpiration = finalDate.replace('/', '');
-            this.gsm = '216' + gsm;
-            this.card = cardNumber;
-
-            this.resetAlerts();
-
-            this.crudService.verifyCardholder(cardNumber, nationalId, this.gsm, formattedExpiration).subscribe(
-                (response) => {
-                    console.log('Verification initiated:', response);
-                    this.successMessage = 'Verification initiated successfully. Waiting for status...';
-
-                    this.hideMessageAfterTimeout(); // Hide after 2 seconds
-
-                    // Subscribe to WebSocket updates
-                    this.subscribeToVerificationUpdates();
-                },
-                (error) => {
-                    console.error('Verification failed:', error);
-                    this.errorMessage = 'Failed to initiate verification: Check Information';
-
-                    this.hideMessageAfterTimeout(); // Hide after 2 seconds
-                }
-            );
-        }
+    verifyCardholder(): void {
+      if (this.firstFormGroup.valid) {
+        const { cardNumber, nationalId, gsm, finalDate, countryCode } = this.firstFormGroup.value;
+        const formattedExpiration = finalDate.replace('/', '');
+        this.gsm = countryCode + gsm; 
+        this.card = cardNumber;
+    
+        this.resetAlerts();
+    
+        this.crudService.verifyCardholder(cardNumber, nationalId, this.gsm, formattedExpiration).subscribe(
+          (response) => {
+            console.log('Verification initiated:', response);
+            this.successMessage = 'Verification initiated successfully. Waiting for status...';
+    
+            this.hideMessageAfterTimeout(); 
+    
+         
+            this.subscribeToVerificationUpdates();
+          },
+          (error) => {
+            console.error('Verification failed:', error);
+            this.errorMessage = 'Failed to initiate verification: Check Information';
+    
+            this.hideMessageAfterTimeout(); // Hide after 2 seconds
+          }
+        );
+      }
     }
 
     subscribeToVerificationUpdates(): void {
